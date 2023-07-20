@@ -1,0 +1,13 @@
+.popup__info {
+    box-sizing: border-box;
+    position: fixed;
+    top: 198px;
+    right: 0;
+    bottom: 0;
+    left: 425px;
+    width: 430px;
+    height: 330px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 25px 0 rgba(0, 0, 0, .15);
+}
