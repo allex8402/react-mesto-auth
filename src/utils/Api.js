@@ -52,7 +52,7 @@ export class Api {
   }
   // обновление аватара
   editAvatar(data) {
-    return fetch(`${this.baseUrl}/users/me/avatar`, {
+    return fetch(`${this.baseUrl}users/me/avatar`, {
       method: 'PATCH',
       headers: this.headers,
       body: JSON.stringify({
@@ -97,9 +97,8 @@ export class Api {
 }  //закрытие класса
 
 const api = new Api({
-  baseUrl: 'https://allexkate.nomoredomainsicu.ru/',
+  baseUrl: 'https://allexkate.nomoredomainsicu.ru',
   headers: {
-    authorization: '',
     'Content-Type': 'application/json'
   }
 });
