@@ -1,7 +1,7 @@
 export class Api {
   constructor(options) {
-    this.baseUrl = options.baseUrl;
-    this.headers = options.headers;
+    this._baseUrl = options.baseUrl;
+    this._headers = options.headers;
   }
 
   _handleResponse(res) {
@@ -11,26 +11,35 @@ export class Api {
     return Promise.reject(`Ошибка:${res.status}`);
   }
 
+  _getHeaders() {
+    const jwt = localStorage.getItem('jwt');
+
+    return {
+      'Authorization': `Bearer ${jwt}`,
+      ...this._headers,
+    };
+  }
+
   //загрузка информации о пользователе с сервера
   getUserInfo() {
-    return fetch(`${this.baseUrl}/users/me`, {
-      headers: this.headers
+    return fetch(`${this._baseUrl}/users/me`, {
+      headers: this._getHeaders(),
     })
       .then(res => this._handleResponse(res))
   }
   //Получить карточки
   getInitialCards() {
-    return fetch(`${this.baseUrl}/cards`, {
-      headers: this.headers
+    return fetch(`${this._baseUrl}/cards`, {
+      headers: this._getHeaders(),
     })
       .then(res => this._handleResponse(res))
   }
 
   // Редактирование профиля
   editProfile(data) {
-    return fetch(`${this.baseUrl}/users/me`, {
+    return fetch(`${this._baseUrl}/users/me`, {
       method: 'PATCH',
-      headers: this.headers,
+      headers: this._getHeaders(),
       body: JSON.stringify({
         name: data.name,
         about: data.about
@@ -40,9 +49,9 @@ export class Api {
   }
   // новая карточка
   addNewCard(data) {
-    return fetch(`${this.baseUrl}/cards`, {
+    return fetch(`${this._baseUrl}/cards`, {
       method: 'POST',
-      headers: this.headers,
+      headers: this._getHeaders(),
       body: JSON.stringify({
         name: data.image,
         link: data.link
@@ -52,9 +61,9 @@ export class Api {
   }
   // обновление аватара
   editAvatar(data) {
-    return fetch(`${this.baseUrl}/users/me/avatar`, {
+    return fetch(`${this._baseUrl}/users/me/avatar`, {
       method: 'PATCH',
-      headers: this.headers,
+      headers: this._getHeaders(),
       body: JSON.stringify({
         avatar: data.avatar
       })
@@ -63,34 +72,31 @@ export class Api {
   }
   // удаление карточки
   deleteCard(id) {
-    return fetch(`${this.baseUrl}/cards/${id}`, {
+    return fetch(`${this._baseUrl}/cards/${id}`, {
       method: 'DELETE',
-      headers: this.headers,
+      headers: this._getHeaders(),
     })
       .then(res => this._handleResponse(res))
   }
   // поставить лайк
   addLikeCard(id) {
-    return fetch(`${this.baseUrl}/cards/${id}/likes`, {
+    return fetch(`${this._baseUrl}/cards/${id}/likes`, {
       method: 'PUT',
-      headers: this.headers,
+      headers: this._getHeaders(),
     })
       .then(res => this._handleResponse(res))
   }
   // удалить лайк
   deleteLikeCard(id) {
-    return fetch(`${this.baseUrl}/cards/${id}/likes`, {
+    return fetch(`${this._baseUrl}/cards/${id}/likes`, {
       method: 'DELETE',
-      headers: this.headers,
+      headers: this._getHeaders(),
     })
       .then(res => this._handleResponse(res))
   }
-  // новый изменение статуса
+  // новый изменение статуса лайка
   changeLikeCardStatus(id, isLiked) {
-    if (isLiked) {
-      return api.addLikeCard(id)
-    }
-    return api.deleteLikeCard(id)
+    return isLiked ? this.addLikeCard(id) : this.deleteLikeCard(id);
   }
 
 

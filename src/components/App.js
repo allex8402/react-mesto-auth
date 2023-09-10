@@ -30,23 +30,13 @@ function App() {
   const [cards, setCards] = React.useState([]);
   const [removeCard, setRemoveCard] = React.useState('');
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(null);
   const [emailName, setEmailName] = React.useState(null);
   const [popupImage, setPopupImage] = React.useState("");
   const [popupTitle, setPopupTitle] = React.useState("");
   const [infoTooltip, setInfoTooltip] = React.useState(false);
 
-  // Получение данных пользователя и начальных карточек при загрузке компонента
-  React.useEffect(() => {
-    Promise.all([api.getUserInfo(), api.getInitialCards()])
-      .then(([userData, initialCards]) => {
-        setCurrentUser(userData);
-        setCards(initialCards);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+
 
   // Обработчики открытия попапов
   const handleEditProfileClick = () => {
@@ -85,7 +75,7 @@ function App() {
   // Обработчик лайка карточки
   function handleCardLike(card) {
     // Снова проверяем, есть ли уже лайк на этой карточке
-    const isLiked = card.likes.some((i) => i._id === currentUser._id);
+    const isLiked = card.likes.some(i => i === currentUser._id);
 
     // Отправляем запрос в API и получаем обновлённые данные карточки
     api
@@ -180,7 +170,7 @@ function App() {
     const jwt = localStorage.getItem("jwt");
     if (jwt) {
       auth.getToken(jwt).then((res) => {
-        if (res) {
+        if (res.data) {
           setIsLoggedIn(true);
           setEmailName(res.data.email);
         }
@@ -190,6 +180,7 @@ function App() {
     }
   }, []);
 
+
   React.useEffect(() => {
     if (isLoggedIn === true) {
       navigate("/");
@@ -197,11 +188,27 @@ function App() {
   }, [isLoggedIn, navigate]);
 
 
+  // Получение данных пользователя и начальных карточек при загрузке компонента (добавили массив зависимости )
+  React.useEffect(() => {
+    if (isLoggedIn === true) {
+      Promise.all([api.getUserInfo(), api.getInitialCards()])
+        .then(([userData, initialCards]) => {
+          setCurrentUser(userData);
+          setCards(initialCards);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [isLoggedIn]);
+
+
   function handleInfoTooltip() {
     setInfoTooltip(true);
   }
 
   function onSignOut() {
+    setCurrentUser('');
     setIsLoggedIn(false);
     setEmailName(null);
     navigate("/sign-in");
